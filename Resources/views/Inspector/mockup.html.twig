@@ -1,0 +1,33 @@
+{% extends 'WizadApiBlueprintBundle::layout.html.twig' %}
+
+{% block content %}
+
+    <div class="row">
+
+        <code>{{ mockUrl }}</code>
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Url</th>
+                    <th>Method</th>
+                    <th>IP</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for profile in profiles %}
+                {% dump(profile) %}
+                <tr>
+                    <td>{{ profile.url }}</td>
+                    <td>{{ profile.method }}</td>
+                    <td>{{ profile.ip }}</td>
+                    <td>{{ profile.time | time_diff }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock %}

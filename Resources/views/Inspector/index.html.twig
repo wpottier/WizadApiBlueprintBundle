@@ -1,0 +1,25 @@
+{% extends 'WizadApiBlueprintBundle::layout.html.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12 col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Mockup Server</div>
+                <div class="panel-body">
+                    <code>{{ url('wizad_api_blueprint_mock_root', {'blueprint': blueprintId}) }}</code>
+                    <div class="pull-right">
+                        <a href="{{ path('wizad_api_blueprint_inspector_mockup', {'blueprint': blueprintId}) }}">View Requests Inspector &gt;&gt;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Real Implementation</div>
+                <div class="panel-body">
+                    <code></code>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

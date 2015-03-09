@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="wizad_api_blueprint.blueprint_files" type="collection" />
+    </parameters>
+
+
+    <services>
+        <service id="wizad_api_blueprint.blueprint.parser" class="Wizad\ApiBlueprintBundle\Blueprint\Parser">
+            <argument type="service" id="serializer" />
+        </service>
+
+        <service id="wizad_api_blueprint.blueprint.manager" class="Wizad\ApiBlueprintBundle\Blueprint\BlueprintManager">
+            <argument type="service" id="wizad_api_blueprint.blueprint.parser" />
+            <argument>%wizad_api_blueprint.blueprint_files%</argument>
+            <argument>%kernel.root_dir%</argument>
+        </service>
+
+        <service id="wizad_api_blueprint.twig.extension" class="Wizad\ApiBlueprintBundle\Twig\WizadApiBlueprintExtension">
+            <argument type="service" id="wizad_api_blueprint.blueprint.manager" />
+            <argument type="service" id="translator" on-invalid="null" />
+            <tag name="twig.extension" />
+        </service>
+
+        <service id="wizad_api_blueprint.routing_loader" class="Wizad\ApiBlueprintBundle\Routing\WizadApiBlueprintLoader" public="false">
+            <argument type="service" id="wizad_api_blueprint.blueprint.manager" />
+
+            <tag name="routing.loader" />
+        </service>
+    </services>
+
+</container>

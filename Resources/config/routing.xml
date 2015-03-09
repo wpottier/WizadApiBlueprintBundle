@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<routes xmlns="http://symfony.com/schema/routing"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <import resource="." type="wizad_api_blueprint" />
+
+    <route id="wizad_api_blueprint_home" path="/">
+        <default key="_controller">WizadApiBlueprintBundle:Default:index</default>
+    </route>
+
+    <route id="wizad_api_blueprint_documentation_root" path="/doc/">
+        <default key="_controller">FrameworkBundle:Redirect:redirect</default>
+        <default key="route">wizad_api_blueprint_home</default>
+        <default key="permanent">true</default>
+    </route>
+
+    <route id="wizad_api_blueprint_documentation_index" path="/doc/{blueprint}">
+        <default key="_controller">WizadApiBlueprintBundle:Documentation:index</default>
+    </route>
+
+    <route id="wizad_api_blueprint_inspector_root" path="/inspector/">
+        <default key="_controller">FrameworkBundle:Redirect:redirect</default>
+        <default key="route">wizad_api_blueprint_home</default>
+        <default key="permanent">true</default>
+    </route>
+
+    <route id="wizad_api_blueprint_inspector_index" path="/inspector/{blueprint}">
+        <default key="_controller">WizadApiBlueprintBundle:Inspector:index</default>
+    </route>
+
+    <route id="wizad_api_blueprint_inspector_mockup" path="/inspector/{blueprint}/mockup">
+        <default key="_controller">WizadApiBlueprintBundle:Inspector:mockup</default>
+    </route>
+
+    <route id="wizad_api_blueprint_inspector_real" path="/inspector/{blueprint}/real">
+        <default key="_controller">WizadApiBlueprintBundle:Inspector:real</default>
+    </route>
+
+    <!-- Root mock route for url generation -->
+    <route id="wizad_api_blueprint_mock_root" path="/mock/{blueprint}" />
+</routes>

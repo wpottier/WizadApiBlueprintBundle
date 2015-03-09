@@ -1,0 +1,20 @@
+{% extends 'WizadApiBlueprintBundle::layout.html.twig' %}
+
+{% block content %}
+<div class="row">
+    {% for id, meta in blueprintsMetadata %}
+        <div class="col-xs-12 col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">{{ id }}</div>
+                <div class="panel-body">
+                    <span class="{{ meta.fileExist ? 'text-default' : 'text-danger' }}"><strong>File:</strong>&nbsp;<span>{{ meta.file }}{% if not meta.fileExist %} (missing file){% endif %}</span></span><br />
+                    {% if meta.fileExist %}
+                        <span><strong>Last updated at:</strong>&nbsp;<span>{{ meta.updatedAt | date }}</span></span><br />
+                        <span><strong>Mock root url:</strong>&nbsp;<code>{{ url('wizad_api_blueprint_mock_root', {'blueprint': id}) }}</code></span><br />
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

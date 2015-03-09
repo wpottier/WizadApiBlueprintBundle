@@ -1,0 +1,227 @@
+{% extends 'WizadApiBlueprintBundle::layout.html.twig' %}
+{% import _self as self %}
+{# @var api \Wizad\ApiBlueprintBundle\Blueprint\Model\Api #}
+
+{% macro renderNavigation(navigation) %}
+    {% for key,value in navigation %}
+        {% if value is iterable %}
+            <li class="heading">
+                <a href="#{{ key|slugify }}" class="section-tl">{{ key }}</a>
+            </li>
+            {% for endpointTitle,endpoint in value %}
+
+                {% if endpointTitle %}
+                    <li class="heading {{ endpointTitle ? '' : 'show' }}">
+                        <a href="#{{ endpointTitle|slugify }}" class="section-tl">{{ endpointTitle }}</a>
+                    </li>
+                {% endif %}
+                {% for endp in endpoint %}
+                    <li>
+                        <a href="#{{ endp.name|slugify(endp.method) }}">
+                            {{ endp.name }}
+                            &nbsp;
+                            <span class="label label-{{ endp.method|lower }}">{{ endp.method|upper }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <li class="heading">
+                <a href="#{{ key|slugify }}">{{ value }}</a>
+            </li>
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+{% block content %}
+
+    <div class="row">
+
+        <div class="col-md-3">
+            <nav class="docs-sidebar hidden-print hidden-xs hidden-sm affix-top">
+                <h5>Documentation</h5>
+                <ul class="nav docs-sidenav">
+                    {{ self.renderNavigation(navigation) }}
+                    <li class="divider"></li>
+                    {{ self.renderNavigation(navigationEndpoints) }}
+                </ul>
+            </nav>
+        </div>
+
+        <div class="col-md-9">
+            <h1>{{ api.name }}</h1>
+            {% if intro is not null %}
+                <p class="lead">{{ intro|raw }}</p>
+            {% endif %}
+
+            <hr>
+
+            {% if(descriptionHeading) %}
+                {% for key,value in descriptionHeading %}
+                    <div id="{{ value|slugify }}">
+                        <h3>{{ value }}</h3>
+                    </div>
+
+                    {{ descriptionContent[loop.index0]|raw }}
+                {% endfor %}
+            {% else %}
+                {{ descriptionContent[0]|raw }}
+            {% endif %}
+
+            <h2 id="references">Reference</h2>
+
+            {% for resourceGroup in api.resourceGroups %}
+                {% if resourceGroup.name %}
+                    <hr>
+                {% endif %}
+
+                        {% if resourceGroup.name is not empty%}
+                            <h3 id="{{ resourceGroup.name | slugify() }}">{{ resourceGroup.name }}</h3>
+                        {% endif %}
+
+                        {% if resourceGroup.description is not empty %}
+                            <p class="lead">{{ resourceGroup.description | markdown(true) }}</p>
+                        {% endif %}
+
+                        {% for resource in resourceGroup.resources %}
+                            {% if resource.name is not empty%}
+                                <h4>{{ resource.name }}</h4>
+                            {% endif %}
+
+                            {% if resource.description is not empty%}
+                                {{ resource.description | markdown}}
+                            {% endif %}
+
+                            {% for action in resource.actions %}
+
+                                <section id="{{ (action.name is not empty ? action.name : (resource.name is not empty ? resource.name : (action.method ~ ' ' ~ resource.uriTemplate)) ) | slugify(action.method) }}" class="panel panel-{{ action.method | lower }}">
+                                    <div class="panel-heading">
+                                        <div style="float:right">
+                                            <span style="text-transform: lowercase">{{ action.name }}</span>
+                                        </div>
+                                        <div style="float:left">
+                                            <a href="#" class="btn btn-xs btn-{{ action.method | lower }}">{{ action.method }}</a>
+                                        </div>
+                                        <div style="overflow:hidden">
+                                            <code>{{ resource.uriTemplate }}</code>
+                                        </div>
+                                    </div>
+
+                                    <div class="panel-body">
+                                        {{ action.description | markdown }}
+                                        <br />
+                                        <div class="pull-right">
+                                            <span class="text-muted"><code>{{ url('wizad_api_blueprint_mock_root', {'blueprint': blueprintId}) | trim('/') }}{{ resource.uriTemplate }}</code></span>
+                                        </div>
+                                    </div>
+
+                                    {% for example in action.examples %}
+                                        <ul class="list-group">
+                                            {% if resource.parameters is not empty %}
+                                                <li class="list-group-item bg-default"><strong>Parameters</strong></li>
+                                                <li class="list-group-item">
+                                                    <dl class="dl-horizontal">
+                                                        {% for parameter in resource.parameters %}
+                                                            <dt>{{ parameter.name }}</dt>
+                                                            <dd>
+                                                                <code>{{ parameter.type }}</code>
+                                                                {% if parameter.required %}
+                                                                    &nbsp;<span class="required">(required)</span>
+                                                                {% else %}
+                                                                    &nbsp;<span>(optional)</span>
+                                                                {% endif %}
+
+                                                                {% if parameter.default is not empty %}
+                                                                    &nbsp;
+                                                                    <span class="text-info default"><strong>Default:&nbsp;</strong><span>{{ parameter.default }}</span></span>
+                                                                {% endif %}
+
+                                                                {% if parameter.example is not empty %}
+                                                                    &nbsp;
+                                                                    <span class="text-muted example"><strong>Example:&nbsp;</strong><span>{{ parameter.example }}</span></span>
+                                                                {% endif %}
+                                                                <p>{{ parameter.description | markdown(true) }}</p>
+
+                                                                {% if parameter.values is not empty %}
+                                                                    <p>
+                                                                        <strong>Choices:&nbsp;</strong>
+                                                                        {% for value in parameter.values %}
+                                                                            <code>{{ value.value }}</code>
+                                                                        {% endfor %}
+                                                                {% endif %}
+                                                            </dd>
+                                                        {% endfor %}
+                                                    </dl>
+                                                </li>
+                                            {% endif %}
+
+                                            {% for request in example.requests %}
+                                                <li class="list-group-item">
+                                                    <strong>Request</strong>
+
+                                                    <a data-toggle="collapse" data-target="#{{ (action.name ~ ' response ' ~ request.name ~ ' ' ~ loop.index) | slugify }}" class="pull-right collapsed">
+                                                        <span class="closed">Show</span>
+                                                        <span class="open">Hide</span>
+                                                    </a>
+                                                </li>
+                                                <li id="{{ (action.name ~ ' response ' ~ request.name ~ ' ' ~ loop.index) | slugify }}" class="list-group-item panel-collapse collapse" style="height: 21px;">
+                                                    {% if request.headers is not empty %}
+                                                        <h5>Headers</h5>
+                                                        <pre><code class="http">{% spaceless %}{% for header in request.headers %}
+                                                                    {{- header.name }} : {{ header.value ~ "\n" -}}
+                                                                {% endfor %}{% endspaceless %}</code></pre>
+                                                    {% endif %}
+                                                    {% if request.body is not empty %}
+                                                        <h5>Body</h5>
+                                                        <pre><code>{% spaceless %}{{ request.body }}{% endspaceless %}</code></pre>
+                                                    {% endif %}
+                                                    {% if request.schema is not empty %}
+                                                        <h5>Schema</h5>
+                                                        <pre><code>{% spaceless %}{{ request.schema }}{% endspaceless %}</code></pre>
+                                                    {% endif %}
+                                                </li>
+                                            {% endfor %}
+                                            {% for response in example.responses %}
+                                                <li class="list-group-item">
+                                                    <strong>Response&nbsp;&nbsp;<code>{{ response.name }}</code></strong>
+                                                    {% if response.headers is not empty or response.body is not empty or response.schema is not empty %}
+                                                        <a data-toggle="collapse" data-target="#{{ (action.name ~ ' response ' ~ response.name ~ ' ' ~ loop.index) | slugify }}" class="pull-right collapsed">
+                                                            <span class="closed">Show</span>
+                                                            <span class="open">Hide</span>
+                                                        </a>
+                                                    {% endif %}
+                                                </li>
+
+                                                {% if response.headers is not empty or response.body is not empty or response.schema is not empty %}
+                                                <li id="{{ (action.name ~ ' response ' ~ response.name ~ ' ' ~ loop.index) | slugify }}" class="list-group-item panel-collapse collapse" style="height: 21px;">
+                                                    {% if response.headers is not empty %}
+                                                        <h5>Headers</h5>
+                                                        <pre><code class="http">{% spaceless %}{% for header in response.headers %}
+                                                            {{- header.name }} : {{ header.value ~ "\n" -}}
+                                                        {% endfor %}{% endspaceless %}</code></pre>
+                                                    {% endif %}
+                                                    {% if response.body is not empty %}
+                                                        <h5>Body</h5>
+                                                        <pre><code>{% spaceless %}{{ response.body }}{% endspaceless %}</code></pre>
+                                                    {% endif %}
+                                                    {% if response.schema is not empty %}
+                                                        <h5>Schema</h5>
+                                                        <pre><code>{% spaceless %}{{ response.schema }}{% endspaceless %}</code></pre>
+                                                    {% endif %}
+                                                </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    {% endfor %}
+                                </section>
+
+                            {% endfor %}
+                        {% endfor %}
+            {% endfor %}
+        </div>
+
+
+    </div>
+
+
+{% endblock %}
