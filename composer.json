@@ -4,7 +4,7 @@
   "autoload": {
     "psr-0": { "Wizad\\ApiBlueprintBundle": "" }
   },
-  "require-dev": {
+  "require": {
     "php": ">=5.3.3",
     "erusev/parsedown": "~1.5",
     "jms/serializer-bundle": "0.13.0",
