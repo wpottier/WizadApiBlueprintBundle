@@ -2,10 +2,8 @@
 
 namespace Wizad\ApiBlueprintBundle\Controller;
 
-use Michelf\MarkdownExtra;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Michelf\Markdown;
 
 class DocumentationController extends Controller
 {
@@ -14,8 +12,8 @@ class DocumentationController extends Controller
         $api = $this->get('wizad_api_blueprint.blueprint.manager')->getBlueprint($blueprint);
 
         // Documentation description
-        $markdownParser = new MarkdownExtra();
-        $description = $markdownParser->transform($api->getDescription());
+        $markdownParser = new \Parsedown();
+        $description = $markdownParser->text($api->getDescription());
         $regex = '#<h2>(.*?)</h2>(.*)#';
         preg_match_all($regex, $description, $descriptionHeading);
         $descriptionContent = preg_split($regex, $description, -1, PREG_SPLIT_NO_EMPTY);
