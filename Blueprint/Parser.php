@@ -17,12 +17,12 @@ class Parser
     public function parse($file)
     {
         $json = $this->getJson($file);
+
         // Remove extra line breaks before list item (Snowcrash bug : https://github.com/apiaryio/snowcrash/issues/214 )
         $json = str_replace(array('\n\n- ', '\n\n+ '), array('\n- ', '\n+ '), $json);
-
+        $json = preg_replace('/([^\\\\]{1})\\\\\\\\"/', '$1\\\\\\\\\\\\"', $json);
 
         $api = $this->serializer->deserialize($json, 'Wizad\ApiBlueprintBundle\Blueprint\Model\Api', 'json');
-
         return $api;
     }
 
